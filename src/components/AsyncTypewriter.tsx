@@ -7,11 +7,15 @@ interface WrapperProps {
   text: string;
 }
 
-interface AsyncTypewriterProps {
+interface AsyncTypewriterProps<T = string> {
   /**
    * The stream to read and type from.
    */
-  stream: AsyncIterable<string>;
+  stream: AsyncIterable<T>;
+  /**
+   * If a type `T` is provided, this helps getting the text out of the chunk.
+   */
+  chunkAccessor?: keyof T;
   /**
    * The delay between typing each character in milliseconds. Default is `20`.
    */
@@ -29,10 +33,10 @@ interface AsyncTypewriterProps {
    * Callback for when the stream ends.
    */
   onStreamEnd?: (message: string) => void;
-  /**
-   * Whether or not to continuously scroll to the bottom of the container as soon as text is typed. Default is `true`.
-   */
-  continuousScroll?: boolean;
+  // /**
+  //  * Whether or not to continuously scroll to the bottom of the container as soon as text is typed. Default is `true`.
+  //  */
+  // continuousScroll?: boolean;
   /**
    * The wrapper element to wrap the typed text in. Default is `span`.
    */
@@ -52,16 +56,17 @@ interface AsyncTypewriterProps {
  * />
  * ```
  */
-export function AsyncTypewriter({
+export function AsyncTypewriter<T = string>({
   stream,
+  chunkAccessor,
   delay = 20,
   abortDelay = 1000,
   onTypingEnd,
   onStreamEnd,
-  continuousScroll = true,
+  // continuousScroll = true,
   Wrapper,
-}: AsyncTypewriterProps) {
-  const scrollTargetRef = useRef<HTMLDivElement>(null);
+}: AsyncTypewriterProps<T>) {
+  // const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   /**
    * This is a ref to ensure no endless loop is caused by the `useCallback` hook.
@@ -100,8 +105,9 @@ export function AsyncTypewriter({
     console.debug('Reading the stream...');
     let total = '';
     for await (const chunk of stream) {
-      total += chunk;
-      setText(prev => prev + chunk);
+      const delta = chunkAccessor ? chunk[chunkAccessor] : chunk;
+      total += delta;
+      setText(prev => prev + delta);
     }
     console.debug('Finished reading the stream. Calling onStreamEnd if any.');
     onStreamEndRef.current && onStreamEndRef.current(total);
@@ -169,12 +175,12 @@ export function AsyncTypewriter({
     };
 
     // relevant dependencies are the text and the index
-  }, [text, currentIndex, delay, abortDelay, continuousScroll]);
+  }, [text, currentIndex, delay, abortDelay]);
 
   return (
     <>
       {Wrapper ? <Wrapper text={currentText} /> : <span>{currentText}</span>}
-      <div ref={scrollTargetRef} />
+      {/* <div ref={scrollTargetRef} /> */}
     </>
   );
 }
