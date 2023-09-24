@@ -46,12 +46,6 @@
       "pre-commit": "tsdx lint"
     }
   },
-  "prettier": {
-    "printWidth": 80,
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "es5"
-  },
   "module": "dist/react-async-typewriter.esm.js",
   "size-limit": [
     {
