@@ -31,7 +31,7 @@ app.get('/stream/text', (req, res) => {
     }
     console.log('Iteration', counter);
     res.write(generate() + ' '); // res.write() instead of res.send()
-  }, 100);
+  }, 10);
 
   // If client closes connection, stop sending events
   res.on('close', () => {
@@ -60,7 +60,7 @@ app.get('/stream/json', (req, res) => {
     }
     console.log('Iteration', counter);
     res.write(
-      `data: ${JSON.stringify({ content: generate(), num: counter })}\n\n`
+      `data: ${JSON.stringify({ content: generate() + ' ', num: counter })}\n\n`
     ); // res.write() instead of res.send()
   }, 100);
 
