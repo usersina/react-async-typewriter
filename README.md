@@ -57,7 +57,11 @@ const MyComponent = () => {
 ### Advanced Usage
 
 If the stream returns a custom json, we can further type it per sub-chunk.
-Additionally, sub-chunking is done based on specific regular expressions that expect the data to be returned as follows:
+Additionally, sub-chunking is done based on specific regular expressions that should be provided.
+
+Here's an example:
+
+- Having an express server with the following `/stream/json` output
 
 ```bash
 curl -N http://localhost:5000/stream/json\?chunks_amount\=5
@@ -73,7 +77,7 @@ data: {"content":"chair ","num":5}
 
 ```
 
-- See the [`JsonExample`](./example/components/JsonExample.tsx) for the full example, here's some pseudo-code:
+- Here's the pseudo-code on how to parse each chunk to a specific type:
 
 ```tsx
 interface ChunkType {
@@ -100,6 +104,7 @@ const stream = getIterableStream<ChunkType>(response.body, JSON.parse, {
 
 - Note that the reason we do sub-chunking is because sometimes chunks tend to overlap when read from the client.
 - This might not be critical for text only responses but it is the case for parse-able results, such as the json type above.
+- See the [`JsonExample`](./example/components/JsonExample.tsx) for the full example
 
 ### Component Props
 
