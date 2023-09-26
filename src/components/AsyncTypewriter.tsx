@@ -21,7 +21,7 @@ interface AsyncTypewriterProps<T = string> {
    */
   delay?: number;
   /**
-   * The time to wait before calling the `onEnd` callback in milliseconds. Default is `1000`.
+   * The time to wait before calling the `onTypingEnd` callback in milliseconds. Default is `1000`.
    * Increasing this value guarantees that slow streams will have enough time to finish typing.
    */
   abortDelay?: number;

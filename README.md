@@ -1,160 +1,126 @@
-# TSDX React User Guide
+# React Asynchronous Typewriter
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
+> An asynchronous react typewriter that handles streams
 
-> This TSDX setup is meant for developing React component libraries (not apps!) that can be published to NPM. If you’re looking to build a React-based app, you should use `create-react-app`, `razzle`, `nextjs`, `gatsby`, or `react-static`.
+Large Language Models can take quite a bit of type to generate the response, hence most API services tend to provide streaming endpoints to return the data as soon as it's being generated.
 
-> If you’re new to TypeScript and React, checkout [this handy cheatsheet](https://github.com/sw-yx/react-typescript-cheatsheet/)
+This library is a way to get the response stream from a fetch request returning `text/event-stream` as `Content-type` and directly type the chunks from it.
 
-## Commands
+## Getting started
 
-TSDX scaffolds your new library inside `/src`, and also sets up a [Parcel-based](https://parceljs.org) playground for it inside `/example`.
-
-The recommended workflow is to run TSDX in one terminal:
+### Installation
 
 ```bash
-npm start # or yarn start
+npm i @usersina/react-async-typewriter
 ```
-
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
-
-Then run the example inside another:
 
 ```bash
-cd example
-npm i # or yarn to install dependencies
-npm start # or yarn start
+yarn add @usersina/react-async-typewriter
 ```
 
-The default example imports and live reloads whatever is in `/dist`, so if you are seeing an out of date component, make sure TSDX is running in watch mode like we recommend above. **No symlinking required**, we use [Parcel's aliasing](https://parceljs.org/module_resolution.html#aliases).
+### Basic Usage
 
-To do a one-off build, use `npm run build` or `yarn build`.
+```tsx
+import React from 'react';
+import {
+  AsyncTypewriter,
+  getIterableStream,
+} from '@usersina/react-async-typewriter';
 
-To run tests, use `npm test` or `yarn test`.
+const MyComponent = () => {
+  const [stream, setStream] = React.useState<AsyncIterable<string> | null>(
+    null
+  );
 
-## Configuration
+  React.useEffect(() => {
+    const fetchStream = async () => {
+      const response = await fetch('/streaming/endpoint');
+      if (response.status !== 200) return;
+      if (!response.body) return;
 
-Code quality is set up for you with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
+      const stream = getIterableStream(response.body);
+      setStream(stream);
+    };
 
-### Jest
+    fetchStream();
+  }, []);
 
-Jest tests are set up to run with `npm test` or `yarn test`.
-
-### Bundle analysis
-
-Calculates the real cost of your library using [size-limit](https://github.com/ai/size-limit) with `npm run size` and visulize it with `npm run analyze`.
-
-#### Setup Files
-
-This is the folder structure we set up for you:
-
-```txt
-/example
-  index.html
-  index.tsx       # test your component here in a demo app
-  package.json
-  tsconfig.json
-/src
-  index.tsx       # EDIT THIS
-/test
-  blah.test.tsx   # EDIT THIS
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
+  return (
+    <div className="App">{stream && <AsyncTypewriter stream={stream} />}</div>
+  );
+};
 ```
 
-#### React Testing Library
+- See the [TextExample](./example/components/TextExample.tsx) for an endpoint example.
+- Also see the [express server](./example/server/index.mjs) used to test a streaming endpoint.
 
-We do not set up `react-testing-library` for you yet, we welcome contributions and documentation on this.
+### Advanced Usage
 
-### Rollup
+If the stream returns a custom json, we can further type it per sub-chunk.
+Additionally, sub-chunking is done based on specific regular expressions that expect the data to be returned as follows:
 
-TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
+```bash
+curl -N http://localhost:5000/stream/json\?chunks_amount\=5
+data: {"content":"forgot ","num":1}
 
-### TypeScript
+data: {"content":"child ","num":2}
 
-`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
+data: {"content":"dawn ","num":3}
 
-## Continuous Integration
+data: {"content":"begun ","num":4}
 
-### GitHub Actions
+data: {"content":"chair ","num":5}
 
-Two actions are added by default:
+```
 
-- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix
-- `size` which comments cost comparison of your library on every pull request using [`size-limit`](https://github.com/ai/size-limit)
+- See the [`JsonExample`](./example/components/JsonExample.tsx) for the full example, here's some pseudo-code:
 
-## Optimizations
-
-Please see the main `tsdx` [optimizations docs](https://github.com/palmerhq/tsdx#optimizations). In particular, know that you can take advantage of development-only optimizations:
-
-```js
-// ./types/index.d.ts
-declare var __DEV__: boolean;
-
-// inside your code...
-if (__DEV__) {
-  console.log('foo');
+```tsx
+interface ChunkType {
+  content: string;
+  num: number;
 }
+
+const response = await fetch(
+  'http://localhost:5000/stream/json?chunks_amount=50'
+);
+
+const stream = getIterableStream<ChunkType>(response.body, JSON.parse, {
+  splitRegExp: /(?<=})\n\ndata: (?={)/,
+  replaceRegExp: /^data: /,
+});
+
+<AsyncTypewriter
+  stream={stream}
+  chunkAccessor="content"
+  delay={10}
+  Wrapper={({ text }) => <p style={{ margin: '5px 0' }}>{text}</p>}
+/>;
 ```
 
-You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
+- Note that the reason we do sub-chunking is because sometimes chunks tend to overlap when read from the client.
+- This might not be critical for text only responses but it is the case for parse-able results, such as the json type above.
 
-## Module Formats
+### Component Props
 
-CJS, ESModules, and UMD module formats are supported.
+This lists all possible props of [**`AsyncTypewriter`**](./src/components/AsyncTypewriter.tsx)
 
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
+| Prop            |               Type                | Options  | Description                                                                                                                                                            | Default |
+| --------------- | :-------------------------------: | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-----: |
+| `stream`        |     AsyncIterable<T = string>     | Required | The stream to read and type from. Default type `T` is a string.                                                                                                        |   `-`   |
+| `chunkAccessor` |              keyof T              | Optional | If a type `T` is provided, this helps getting the text out of the chunk                                                                                                |   `-`   |
+| `delay`         |              number               | Optional | The delay between typing each character in milliseconds                                                                                                                |  `20`   |
+| `abortDelay`    |              number               | Optional | The time to wait before calling the `onTypingEnd` callback in milliseconds. Increasing this value guarantees that slow streams will have enough time to finish typing. | `1000`  |
+| `onTypingEnd`   |     (message: string) => void     | Optional | Callback for when the message finishes typing. Note that the stream can be closed before the message finishes typing                                                   |   `-`   |
+| `onStreamEnd`   |     (message: string) => void     | Optional | Callback for when the stream ends                                                                                                                                      |   `-`   |
+| `Wrapper`       | React.ElementType<{text: string}> | Optional | The wrapper element to wrap the typed text in                                                                                                                          | `span`  |
 
-## Deploying the Example Playground
+### Function parameters
 
-The Playground is just a simple [Parcel](https://parceljs.org) app, you can deploy it anywhere you would normally deploy that. Here are some guidelines for **manually** deploying with the Netlify CLI (`npm i -g netlify-cli`):
+This lists all possible parameters of [**`getIterableStream`**](./src/utils/streaming.ts)
 
-```bash
-cd example # if not already in the example folder
-npm run build # builds to dist
-netlify deploy # deploy the dist folder
-```
-
-Alternatively, if you already have a git repo connected, you can set up continuous deployment with Netlify:
-
-```bash
-netlify init
-# build command: yarn build && cd example && yarn && yarn build
-# directory to deploy: example/dist
-# pick yes for netlify.toml
-```
-
-## Named Exports
-
-Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
-
-## Including Styles
-
-There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
-
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
-
-## Publishing to NPM
-
-We recommend using [np](https://github.com/sindresorhus/np).
-
-## Usage with Lerna
-
-When creating a new package with TSDX within a project set up with Lerna, you might encounter a `Cannot resolve dependency` error when trying to run the `example` project. To fix that you will need to make changes to the `package.json` file _inside the `example` directory_.
-
-The problem is that due to the nature of how dependencies are installed in Lerna projects, the aliases in the example project's `package.json` might not point to the right place, as those dependencies might have been installed in the root of your Lerna project.
-
-Change the `alias` to point to where those packages are actually installed. This depends on the directory structure of your Lerna project, so the actual path might be different from the diff below.
-
-```diff
-   "alias": {
--    "react": "../node_modules/react",
--    "react-dom": "../node_modules/react-dom"
-+    "react": "../../../node_modules/react",
-+    "react-dom": "../../../node_modules/react-dom"
-   },
-```
-
-An alternative to fixing this problem would be to remove aliases altogether and define the dependencies referenced as aliases as dev dependencies instead. [However, that might cause other problems.](https://github.com/palmerhq/tsdx/issues/64)
+| Parameter |                      Type                       | Options  | Description                                                                                                                                                                                                                                   | Default |
+| --------- | :---------------------------------------------: | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-----: |
+| `body`    |           ReadableStream\<Uint8Array>           | Required | The `ReadableStream` stream to iterate over. This is usually the `body` property of a `Response` object                                                                                                                                       |   `-`   |
+| `parser`  |              (chunk: string) => T               | Optional | The function used to parse each chunk (or sub-chunk if `chunkSplitter`) is used to the `T` type. Useful if you want to type the stream result                                                                                                 |   `-`   |
+| `stream`  | { splitRegExp: RegExp; replaceRegExp: RegExp; } | Optional | The regular expressions used to further split each chunk into sub-chunks. This is useful since different chunks from a streaming endpoint can be considered as a single chunks in the client hence breaking any parsing done on a chunk-basis |   `-`   |

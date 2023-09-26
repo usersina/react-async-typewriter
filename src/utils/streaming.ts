@@ -25,7 +25,7 @@ export async function* getIterableStream<T = string>(
   /**
    * The regular expressions used to further split each chunk into sub-chunks.
    * This is useful since different chunks from a streaming endpoint can be considered as a single chunks in the client
-   * hence breaking any parsing on a chunk-basis.
+   * hence breaking any parsing done on a chunk-basis.
    *
    *@example
    * ```ts
