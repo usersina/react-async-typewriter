@@ -34,15 +34,15 @@ export const TextExample = ({ chunksAmount }: TextExampleProps) => {
   }, []);
 
   return (
-    <div>
+    <article>
       <h1>AsyncTypewriter - Text Example</h1>
       {stream && (
         <AsyncTypewriter
           stream={stream}
           delay={10}
-          Wrapper={({ text }) => <p>{text}</p>}
+          Wrapper={({ text }) => <p style={{ margin: '5px 0' }}>{text}</p>}
         />
       )}
-    </div>
+    </article>
   );
 };

@@ -42,16 +42,16 @@ export const JsonExample = ({ chunksAmount }: JsonExampleProps) => {
   }, []);
 
   return (
-    <div>
+    <article>
       <h1>AsyncTypewriter - Json Example</h1>
       {stream && (
         <AsyncTypewriter
           stream={stream}
           chunkAccessor="content"
           delay={10}
-          Wrapper={({ text }) => <p>{text}</p>}
+          Wrapper={({ text }) => <p style={{ margin: '5px 0' }}>{text}</p>}
         />
       )}
-    </div>
+    </article>
   );
 };

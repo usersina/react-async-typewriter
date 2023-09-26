@@ -4,13 +4,14 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { JsonExample } from './components/JsonExample';
 import { TextExample } from './components/TextExample';
+import './index.css';
 
 const App = () => {
   return (
-    <div>
+    <main>
       <TextExample chunksAmount={50} />
       <JsonExample chunksAmount={50} />
-    </div>
+    </main>
   );
 };
 
