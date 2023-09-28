@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Express Streaming Server</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: large;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Server</h1>
+    <p style="text-align: center">
+      This is a simple Express server that streams data to the client.
+      <br />
+      If the client closes the connection, the server will stop sending data.
+    </p>
+    <ul>
+      <li>
+        <strong>Plain Text Streaming: </strong>
+        <a
+          href="http://localhost:5000/stream/text?chunks_amount=500"
+          target="_blank"
+        >
+          http://localhost:5000/stream/text?chunks_amount=500
+        </a>
+      </li>
+      <li>
+        <strong>Structured Chunk Streaming: </strong>
+        <a
+          href="http://localhost:5000/stream/json?chunks_amount=50"
+          target="_blank"
+        >
+          http://localhost:5000/stream/json?chunks_amount=50
+        </a>
+      </li>
+    </ul>
+  </body>
+</html>

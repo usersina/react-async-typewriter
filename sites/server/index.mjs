@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express from 'express'
+import { resolve } from 'path'
 import { generate } from 'random-words'
 
 const app = express()
@@ -8,7 +9,8 @@ const PORT = 5000
 app.use(cors())
 
 app.get('/', (_req, res) => {
-  res.send('Hello World!')
+  // render the html page
+  res.sendFile(resolve() + '/index.html')
 })
 
 // See https://stackoverflow.com/questions/34657222/how-to-use-server-sent-events-in-express-js
