@@ -43,9 +43,7 @@ const MyComponent = () => {
     fetchStream()
   }, [])
 
-  return (
-    <div className="App">{stream && <AsyncTypewriter stream={stream} />}</div>
-  )
+  return <div>{stream && <AsyncTypewriter stream={stream} />}</div>
 }
 ```
 
@@ -92,7 +90,7 @@ const stream = getIterableStream<ChunkType>(response.body, JSON.parse, {
   replaceRegExp: /^data: /,
 })
 
-;<AsyncTypewriter
+<AsyncTypewriter
   stream={stream}
   chunkAccessor="content"
   delay={10}
