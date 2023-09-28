@@ -104,7 +104,7 @@ const stream = getIterableStream<ChunkType>(response.body, JSON.parse, {
 - This might not be critical for text only responses but it is the case for parse-able results, such as the json type above.
 - See the [`JsonExample`](./example/components/JsonExample.tsx) for the full example
 
-### Component Props
+## Component Props
 
 This lists all possible props of [**`AsyncTypewriter`**](./src/components/AsyncTypewriter.tsx)
 
@@ -118,7 +118,7 @@ This lists all possible props of [**`AsyncTypewriter`**](./src/components/AsyncT
 | `onStreamEnd`   |     (message: string) => void     | Optional | Callback for when the stream ends                                                                                                                                      |   `-`   |
 | `Wrapper`       | React.ElementType<{text: string}> | Optional | The wrapper element to wrap the typed text in                                                                                                                          | `span`  |
 
-### Function parameters
+## Function parameters
 
 This lists all possible parameters of [**`getIterableStream`**](./src/utils/streaming.ts)
 
@@ -127,3 +127,17 @@ This lists all possible parameters of [**`getIterableStream`**](./src/utils/stre
 | `body`    |           ReadableStream\<Uint8Array>           | Required | The `ReadableStream` stream to iterate over. This is usually the `body` property of a `Response` object                                                                                                                                       |   `-`   |
 | `parser`  |              (chunk: string) => T               | Optional | The function used to parse each chunk (or sub-chunk if `chunkSplitter`) is used to the `T` type. Useful if you want to type the stream result                                                                                                 |   `-`   |
 | `stream`  | { splitRegExp: RegExp; replaceRegExp: RegExp; } | Optional | The regular expressions used to further split each chunk into sub-chunks. This is useful since different chunks from a streaming endpoint can be considered as a single chunks in the client hence breaking any parsing done on a chunk-basis |   `-`   |
+
+## Development
+
+Once you clone the repository, install the dependencies and run the `start` script from the root
+
+```bash
+yarn install && yarn start
+```
+
+This will run the following applications:
+
+- The [**library**](./packages/react-async-typewriter/) in watch mode
+- An [**express server**](./sites/server/) at <http://localhost:5000>
+- An [**example frontend**](./sites/example/) that uses the library at <http://localhost:3000>

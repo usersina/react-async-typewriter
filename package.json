@@ -1,9 +1,17 @@
 {
   "private": true,
+  "scripts": {
+    "start": "concurrently \"yarn start:package\" \"yarn start:site\"",
+    "start:site": "concurrently \"cd sites/server && yarn dev\" \"cd sites/example && yarn dev\"",
+    "start:package": "cd ./packages/react-async-typewriter && yarn dev"
+  },
   "workspaces": {
     "packages": [
       "packages/*",
       "sites/*"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.1"
   }
 }
