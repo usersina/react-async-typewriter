@@ -34,7 +34,6 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: yarn build
-          cwd: ${{env.WORK_DIR}}
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
