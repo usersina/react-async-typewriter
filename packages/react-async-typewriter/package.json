@@ -2,7 +2,7 @@
   "name": "@usersina/react-async-typewriter",
   "description": "An asynchronous react typewriter that handles event streams",
   "private": false,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",
