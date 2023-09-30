@@ -4,7 +4,7 @@
     "start": "concurrently \"yarn start:package\" \"yarn start:site\"",
     "start:site": "concurrently \"cd sites/server && yarn dev\" \"cd sites/example && yarn dev\"",
     "start:package": "cd ./packages/react-async-typewriter && yarn dev",
-    "release": "cd ./packages/react-async-typewriter && yarn build && changeset publish"
+    "release": "changeset publish"
   },
   "workspaces": {
     "packages": [
