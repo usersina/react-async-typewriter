@@ -1,5 +1,11 @@
 # @usersina/react-async-typewriter
 
+## 1.0.2
+
+### Patch Changes
+
+- c8a14bf: Add keywords and tags
+
 ## 1.0.1
 
 ### Patch Changes
