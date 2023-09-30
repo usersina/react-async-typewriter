@@ -32,8 +32,6 @@ jobs:
       - name: Create Release Pull Request or Publish to NPM
         id: changesets
         uses: changesets/action@v1
-        with:
-          publish: yarn build
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
