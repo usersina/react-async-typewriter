@@ -1,0 +1,33 @@
+name: Build and Lint
+
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+    env:
+      WORK_DIR: packages/react-async-typewriter
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+        working-directory: ${{env.WORK_DIR}}
+
+      - name: Lint code
+        run: yarn lint
+        working-directory: ${{env.WORK_DIR}}
+
+      - name: Build code
+        run: yarn build
+        working-directory: ${{env.WORK_DIR}}
