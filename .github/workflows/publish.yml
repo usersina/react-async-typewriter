@@ -1,12 +1,14 @@
-name: Build and Lint
-
+name: Publish
 on:
   push:
     branches:
-      - '*'
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  build-and-lint:
+  build:
     runs-on: ubuntu-latest
     env:
       WORK_DIR: packages/react-async-typewriter
@@ -23,10 +25,15 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Lint code
-        run: yarn lint
-        working-directory: ${{env.WORK_DIR}}
-
       - name: Build code
         run: yarn build
         working-directory: ${{env.WORK_DIR}}
+
+      - name: Create Release Pull Request or Publish to NPM
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: yarn build
+          cwd: ${{env.WORK_DIR}}
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
