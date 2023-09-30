@@ -52,5 +52,9 @@
       }
     }
   },
-  "license": "UNLICENSED"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usersina/react-async-typewriter.git"
+  }
 }
