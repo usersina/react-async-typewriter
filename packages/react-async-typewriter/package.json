@@ -56,5 +56,21 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/usersina/react-async-typewriter.git"
-  }
+  },
+  "keywords": [
+    "async typewriter",
+    "async typewriter effect",
+    "react",
+    "stream typewriter",
+    "react async typewriter",
+    "react async typewriter effect",
+    "react-component"
+  ],
+  "tags": [
+    "react",
+    "async-typewriter-effect",
+    "async-typewriter",
+    "stream-typewriter",
+    "react-component"
+  ]
 }
