@@ -1,5 +1,11 @@
 # @usersina/react-async-typewriter
 
+## 1.0.3
+
+### Patch Changes
+
+- 41fa714: Update broken markdown links
+
 ## 1.0.2
 
 ### Patch Changes
