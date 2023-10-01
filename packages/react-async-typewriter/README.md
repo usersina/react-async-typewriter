@@ -47,8 +47,8 @@ const MyComponent = () => {
 }
 ```
 
-- See the [TextExample](./example/components/TextExample.tsx) for an endpoint example.
-- Also see the [express server](./example/server/index.mjs) used to test a streaming endpoint.
+- See the [TextExample](../../sites/example/src/components/TextExample.tsx) for an endpoint example.
+- Also see the [express server](../../sites/server/index.mjs) used to test a streaming endpoint.
 
 ### Advanced Usage
 
@@ -100,7 +100,7 @@ const stream = getIterableStream<ChunkType>(response.body, JSON.parse, {
 
 - Note that the reason we do sub-chunking is because sometimes chunks tend to overlap when read from the client.
 - This might not be critical for text only responses but it is the case for parse-able results, such as the json type above.
-- See the [`JsonExample`](./example/components/JsonExample.tsx) for the full example
+- See the [`JsonExample`](../../sites/example/src/components/JsonExample.tsx) for the full example
 
 ## Component Props
 
