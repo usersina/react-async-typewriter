@@ -47,8 +47,8 @@ const MyComponent = () => {
 }
 ```
 
-- See the [TextExample](./example/components/TextExample.tsx) for an endpoint example.
-- Also see the [express server](./example/server/index.mjs) used to test a streaming endpoint.
+- See the [TextExample](./sites/example/src/components/TextExample.tsx) for an endpoint example.
+- Also see the [express server](./sites/server/index.mjs) used to test a streaming endpoint.
 
 ### Advanced Usage
 
@@ -100,7 +100,7 @@ const stream = getIterableStream<ChunkType>(response.body, JSON.parse, {
 
 - Note that the reason we do sub-chunking is because sometimes chunks tend to overlap when read from the client.
 - This might not be critical for text only responses but it is the case for parse-able results, such as the json type above.
-- See the [`JsonExample`](./example/components/JsonExample.tsx) for the full example
+- See the [`JsonExample`](./sites/example/src/components/JsonExample.tsx) for the full example
 
 ## Component Props
 
@@ -139,3 +139,5 @@ This will run the following applications:
 - The [**library**](./packages/react-async-typewriter/) in watch mode
 - An [**express server**](./sites/server/) at <http://localhost:5000>
 - An [**example frontend**](./sites/example/) that uses the library at <http://localhost:3000>
+
+You can then submit a pull request, alongside a commit containing a `changeset` file, see [changesets](https://github.com/changesets/changesets) for more details.
