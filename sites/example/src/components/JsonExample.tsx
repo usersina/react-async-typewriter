@@ -1,6 +1,6 @@
 import {
   AsyncTypewriter,
-  getIterableStream,
+  getIterableJsonStream,
 } from '@usersina/react-async-typewriter'
 import * as React from 'react'
 
@@ -34,10 +34,7 @@ export const JsonExample = ({ chunksAmount }: JsonExampleProps) => {
         return
       }
 
-      const stream = getIterableStream<ChunkType>(response.body, JSON.parse, {
-        splitRegExp: /(?<=})\n\ndata: (?={)/,
-        replaceRegExp: /^data: /,
-      })
+      const stream = getIterableJsonStream<ChunkType>(response.body)
       setStream(stream)
     }
 
