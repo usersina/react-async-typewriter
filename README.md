@@ -2,9 +2,9 @@
 
 > An asynchronous react typewriter that handles streams
 
-Large Language Models can take quite a bit of type to generate the response, hence most API services tend to provide streaming endpoints to return the data as soon as it's being generated.
+Large Language Models can take quite a bit of time to generate the full response, hence most API services tend to provide streaming endpoints to return the data as soon as it's being generated (time to first token).
 
-This library is a way to get the response stream from a fetch request returning `text/event-stream` as `Content-type` and directly type the chunks from it.
+This library is a way to get the response stream from a fetch request returning a stream and parse its result.
 
 ## Getting started
 
@@ -18,7 +18,7 @@ npm i @usersina/react-async-typewriter
 yarn add @usersina/react-async-typewriter
 ```
 
-### Basic Usage
+### Text Streaming
 
 ```tsx
 import React from 'react'
@@ -50,10 +50,9 @@ const MyComponent = () => {
 - See the [TextExample](./sites/example/src/components/TextExample.tsx) for an endpoint example.
 - Also see the [express server](./sites/server/index.mjs) used to test a streaming endpoint.
 
-### Advanced Usage
+### Json Streaming
 
-If the stream returns a custom json, we can further type it per sub-chunk.
-Additionally, sub-chunking is done based on specific regular expressions that should be provided.
+If the stream returns a json response, we can further parse and type the chunks.
 
 Here's an example:
 
@@ -61,16 +60,7 @@ Here's an example:
 
 ```bash
 curl -N http://localhost:5000/stream/json\?chunks_amount\=5
-data: {"content":"forgot ","num":1}
-
-data: {"content":"child ","num":2}
-
-data: {"content":"dawn ","num":3}
-
-data: {"content":"begun ","num":4}
-
-data: {"content":"chair ","num":5}
-
+{"content":"scientist ","num":1}{"content":"your ","num":2}{"content":"anyway ","num":3}{"content":"spin ","num":4}
 ```
 
 - Here's the pseudo-code on how to parse each chunk to a specific type:
@@ -85,10 +75,7 @@ const response = await fetch(
   'http://localhost:5000/stream/json?chunks_amount=50'
 )
 
-const stream = getIterableStream<ChunkType>(response.body, JSON.parse, {
-  splitRegExp: /(?<=})\n\ndata: (?={)/,
-  replaceRegExp: /^data: /,
-})
+const stream = getIterableStream<ChunkType>(response.body)
 
 <AsyncTypewriter
   stream={stream}
@@ -98,9 +85,7 @@ const stream = getIterableStream<ChunkType>(response.body, JSON.parse, {
 />
 ```
 
-- Note that the reason we do sub-chunking is because sometimes chunks tend to overlap when read from the client.
-- This might not be critical for text only responses but it is the case for parse-able results, such as the json type above.
-- See the [`JsonExample`](./sites/example/src/components/JsonExample.tsx) for the full example
+See the [`JsonExample`](./sites/example/src/components/JsonExample.tsx) for an actual implementation.
 
 ## Component Props
 
@@ -120,15 +105,21 @@ This lists all possible props of [**`AsyncTypewriter`**](./src/components/AsyncT
 
 This lists all possible parameters of [**`getIterableStream`**](./src/utils/streaming.ts)
 
-| Parameter |                      Type                       | Options  | Description                                                                                                                                                                                                                                   | Default |
-| --------- | :---------------------------------------------: | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-----: |
-| `body`    |           ReadableStream\<Uint8Array>           | Required | The `ReadableStream` stream to iterate over. This is usually the `body` property of a `Response` object                                                                                                                                       |   `-`   |
-| `parser`  |              (chunk: string) => T               | Optional | The function used to parse each chunk (or sub-chunk if `chunkSplitter`) is used to the `T` type. Useful if you want to type the stream result                                                                                                 |   `-`   |
-| `stream`  | { splitRegExp: RegExp; replaceRegExp: RegExp; } | Optional | The regular expressions used to further split each chunk into sub-chunks. This is useful since different chunks from a streaming endpoint can be considered as a single chunks in the client hence breaking any parsing done on a chunk-basis |   `-`   |
+| Parameter |            Type             | Options  | Description                                                                                             | Default |
+| --------- | :-------------------------: | -------- | ------------------------------------------------------------------------------------------------------- | :-----: |
+| `body`    | ReadableStream\<Uint8Array> | Required | The `ReadableStream` stream to iterate over. This is usually the `body` property of a `Response` object |   `-`   |
+
+This lists all possible parameters of [**`getIterableJsonStream<T>`**](./src/utils/streaming.ts)
+
+| Parameter |            Type             | Options  | Description                                                                                             | Default |
+| --------- | :-------------------------: | -------- | ------------------------------------------------------------------------------------------------------- | :-----: |
+| `body`    | ReadableStream\<Uint8Array> | Required | The `ReadableStream` stream to iterate over. This is usually the `body` property of a `Response` object |   `-`   |
 
 ## Development
 
-Once you clone the repository, install the dependencies and run the `start` script from the root
+### 1. Running the project
+
+Once you fork the repository, install the dependencies and run the `start` script from the root
 
 ```bash
 yarn install && yarn start
@@ -139,5 +130,28 @@ This will run the following applications:
 - The [**library**](./packages/react-async-typewriter/) in watch mode
 - An [**express server**](./sites/server/) at <http://localhost:5000>
 - An [**example frontend**](./sites/example/) that uses the library at <http://localhost:3000>
+
+You will see a warning since the example frontend cannot find the library (it's still being built) but navigating
+to <http://localhost:3000> should already show the working example.
+
+### Alternatively
+
+You can also only run the library files in watch mode using
+
+```bash
+yarn start:package
+```
+
+And try out the package in any of your projects by adding this dependency
+
+```json
+"dependencies": {
+  "@usersina/react-async-typewriter": "link:/absolute/path/to/react-async-typewriter/packages/react-async-typewriter",
+}
+```
+
+Don't forget to re-run `yarn install` once you add the dependency.
+
+### 2. Submitting a PR
 
 You can then submit a pull request, alongside a commit containing a `changeset` file, see [changesets](https://github.com/changesets/changesets) for more details.
