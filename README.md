@@ -154,4 +154,34 @@ Don't forget to re-run `yarn install` once you add the dependency.
 
 ### 2. Submitting a PR
 
-You can then submit a pull request, alongside a commit containing a `changeset` file, see [changesets](https://github.com/changesets/changesets) for more details.
+Once your changes are committed, you can then create a `changeset` file and make a commit with the needed changes.
+
+Here's the tl;dr:
+
+- Create the `changeset` file
+
+```bash
+npx changeset
+```
+
+- (optional) Show the changes
+
+```bash
+npx changeset status --verbose
+```
+
+- Remove all changesets and translate them to changelog and package updates
+
+```bash
+npx changeset version
+```
+
+- Commit and push
+
+```bash
+git add .
+git commit -am "versioning"
+git push
+```
+
+You can then submit a pull request that contains all of your changes alongside any changes made by changeset. See [changesets](https://github.com/changesets/changesets) for more details.
