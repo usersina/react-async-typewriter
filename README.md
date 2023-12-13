@@ -6,7 +6,7 @@ Large Language Models can take quite a bit of time to generate the full response
 
 This library is a way to get the response stream from a fetch request returning a stream and parse its result.
 
-## Getting started
+## I. Getting started
 
 ### Installation
 
@@ -87,7 +87,7 @@ const stream = getIterableStream<ChunkType>(response.body)
 
 See the [`JsonExample`](./sites/example/src/components/JsonExample.tsx) for an actual implementation.
 
-## Component Props
+## II. Component Props
 
 This lists all possible props of [**`AsyncTypewriter`**](./src/components/AsyncTypewriter.tsx)
 
@@ -101,7 +101,7 @@ This lists all possible props of [**`AsyncTypewriter`**](./src/components/AsyncT
 | `onStreamEnd`   |     (message: string) => void     | Optional | Callback for when the stream ends                                                                                                                                      |   `-`   |
 | `Wrapper`       | React.ElementType<{text: string}> | Optional | The wrapper element to wrap the typed text in                                                                                                                          | `span`  |
 
-## Function parameters
+## III. Function parameters
 
 This lists all possible parameters of [**`getIterableStream`**](./src/utils/streaming.ts)
 
@@ -115,7 +115,7 @@ This lists all possible parameters of [**`getIterableJsonStream<T>`**](./src/uti
 | --------- | :-------------------------: | -------- | ------------------------------------------------------------------------------------------------------- | :-----: |
 | `body`    | ReadableStream\<Uint8Array> | Required | The `ReadableStream` stream to iterate over. This is usually the `body` property of a `Response` object |   `-`   |
 
-## Development
+## IV. Contributing
 
 ### 1. Running the project
 
@@ -185,3 +185,7 @@ git push
 ```
 
 You can then submit a pull request that contains all of your changes alongside any changes made by changeset. See [changesets](https://github.com/changesets/changesets) for more details.
+
+## V. Roadmap
+
+- [ ] Create a better `getIterableJsonStream` schema that can consider nested objects and the presence of any symbol.
