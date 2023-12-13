@@ -1,5 +1,11 @@
 # @usersina/react-async-typewriter
 
+## 2.0.0
+
+### Major Changes
+
+- overhaul & simplify the streaming api
+
 ## 1.0.3
 
 ### Patch Changes
