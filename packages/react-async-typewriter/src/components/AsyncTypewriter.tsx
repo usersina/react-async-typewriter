@@ -160,7 +160,7 @@ export function AsyncTypewriter<T = string>({
     // We wait for one second for the stream to receive any additional data.
     // If no additional data is received, then we are done typing.
     console.debug(
-      'Cursor reached the text length. If no additional text is received within a second, we are done typing.'
+      `Cursor reached the text length. If no additional text is received within ${abortDelay} ms, we are done typing.`
     )
     abort = setTimeout(() => {
       console.debug('Finished typing. Calling onTypingEndRef if any.')
