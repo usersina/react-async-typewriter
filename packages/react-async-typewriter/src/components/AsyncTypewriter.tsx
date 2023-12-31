@@ -26,13 +26,19 @@ interface AsyncTypewriterProps<T = string> {
    */
   abortDelay?: number
   /**
+   * Whether or not to stop typing as soon as the stream is finished. This also calls the `onTypingEnd` callback.
+   *
+   * Default is `false`.
+   */
+  earlyStop?: boolean
+  /**
    * Callback for when the message finishes typing. Note that the stream can be closed before the message finishes typing.
    */
   onTypingEnd?: (message: string) => void
   /**
-   * Callback for when the stream ends.
+   * Callback for when the stream ends. This does not return the message intentionally. Instead, enable `earlyStop` and use `onTypingEnd`.
    */
-  onStreamEnd?: (message: string) => void
+  onStreamEnd?: () => void
   // /**
   //  * Whether or not to continuously scroll to the bottom of the container as soon as text is typed. Default is `true`.
   //  */
@@ -61,11 +67,18 @@ export function AsyncTypewriter<T = string>({
   chunkAccessor,
   delay = 20,
   abortDelay = 1000,
+  earlyStop,
   onTypingEnd,
   onStreamEnd,
   // continuousScroll = true,
   Wrapper,
 }: AsyncTypewriterProps<T>) {
+  if (earlyStop && !onTypingEnd) {
+    throw new Error(
+      'The `earlyStop` prop is set to true but the `onTypingEnd` prop is not provided.'
+    )
+  }
+
   // const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   /**
@@ -77,6 +90,11 @@ export function AsyncTypewriter<T = string>({
    * This is a ref to ensure no endless loop is caused by the `useCallback` hook.
    */
   const onTypingEndRef = useRef(onTypingEnd)
+
+  /**
+   * This is a ref to ensure no endless loop is caused by the `useCallback` hook.
+   */
+  const isStreamFinishedRef = useRef(false)
 
   /**
    * This is a ref to ensure no endless loop is caused by the `useEffect` hook.
@@ -108,10 +126,8 @@ export function AsyncTypewriter<T = string>({
    */
   const populateTextRef = useCallback(async () => {
     console.debug('Reading the stream...')
-    let total = ''
     for await (const chunk of stream) {
       const delta = chunkAccessor ? chunk[chunkAccessor] : chunk
-      total += delta
       setText((prev) => prev + delta)
       if (!firstChunkReceivedRef.current) {
         console.debug(
@@ -120,8 +136,14 @@ export function AsyncTypewriter<T = string>({
         firstChunkReceivedRef.current = true
       }
     }
-    console.debug('Finished reading the stream. Calling onStreamEnd if any.')
-    onStreamEndRef.current && onStreamEndRef.current(total)
+    console.debug(
+      'Finished reading the stream. Setting isStreamFinishedRef to true'
+    )
+    isStreamFinishedRef.current = true
+    if (onStreamEndRef.current) {
+      console.debug('Calling onStreamEndRef...')
+      onStreamEndRef.current()
+    }
   }, [stream, chunkAccessor])
 
   /**
@@ -139,6 +161,19 @@ export function AsyncTypewriter<T = string>({
     console.debug('Text or index updated. Typing the next character...')
     let timeout: ReturnType<typeof setTimeout>
     let abort = abortTimerRef.current
+
+    // If earlyStop is set and if the stream is finished, early stop by calling the onTypingEnd callback with the full text.
+    if (
+      earlyStop &&
+      firstChunkReceivedRef.current &&
+      isStreamFinishedRef.current
+    ) {
+      console.debug(
+        'Stream is already finished and early stop is set to true. Calling onTypingEndRef...'
+      )
+      onTypingEndRef.current!(text) // This is safe since we check for the callback above
+      return
+    }
 
     // If the current index is less than the text length, type the next character after a delay.
     if (currentIndex < text.length) {
@@ -165,24 +200,25 @@ export function AsyncTypewriter<T = string>({
     }
 
     // If the current index is equal to the text length then, either:
-    // 1. We are done typing.
-    // 2. Or the stream reached the end.
+    // 1. First chunk was not received yet, this means that the stream is still loading.
+    // 2. We are done typing.
+    // 3. Or the stream reached the end.
     //
     // We wait for one second for the stream to receive any additional data.
     // If no additional data is received, then we are done typing.
     console.debug(
-      `Cursor reached the text length. If no additional text is received within ${abortDelay} ms, we are done typing.`
+      `Cursor reached the text length. Waiting for ${abortDelay} ms before calling onTypingEndRef if first chunk was received...`
     )
     abort = setTimeout(() => {
-      console.debug('Finished typing.')
       if (!firstChunkReceivedRef.current) {
         console.debug(
-          'No chunk was received yet, this means that the stream is most likely still loading. Skipping onTypingEndRef for now.'
+          'No first chunk was received yet, this means that the stream is most likely still loading. Skipping onTypingEndRef for this iteration.'
         )
         return
       }
 
       // Call the onTypingEnd callback if any
+      console.debug('Finished typing.')
       if (onTypingEndRef.current) {
         console.debug('Calling onTypingEndRef...')
         onTypingEndRef.current(text)
@@ -197,7 +233,7 @@ export function AsyncTypewriter<T = string>({
     }
 
     // relevant dependencies are the text and the index
-  }, [text, currentIndex, delay, abortDelay])
+  }, [text, currentIndex, earlyStop, delay, abortDelay])
 
   return (
     <>
