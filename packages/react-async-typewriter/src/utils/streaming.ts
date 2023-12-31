@@ -30,12 +30,16 @@ export async function* getIterableStream(
   }
 }
 
+export async function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 /**
  * Get an async iterable stream from a `ReadableStream` and parse each chunk as JSON.
  * This is useful for streaming JSON responses from a server. Only works
  * with JSON objects that do not include child objects.
  *
- * @param body The `ReadableStream` stream to iterate over.
+ * @param body The `ReadableStream` stream to iterate over. Should be an `application/x-ndjson` stream.
  * @example
  * ```ts
  * const response = await fetch(`/stream`)
@@ -52,22 +56,36 @@ export async function* getIterableJsonStream<T>(
 ): AsyncIterable<T> {
   const reader = body.getReader()
   const decoder = new TextDecoder()
-  let pending = ''
+  let buffer = ''
 
-  let readResult = await reader.read()
-  while (!readResult.done) {
-    const chunk = decoder.decode(readResult.value, { stream: true })
-    pending += chunk
-    let boundary = pending.indexOf('}')
-    while (boundary !== -1) {
-      const jsonString = pending.substring(0, boundary + 1)
-      yield JSON.parse(jsonString)
-      pending = pending.substring(boundary + 1)
-      boundary = pending.indexOf('}')
+  // TODO: Create robust tests
+  // console.log('Simulating waiting for data...')
+  // await wait(5000)
+
+  while (true) {
+    const { done, value } = await reader.read()
+
+    if (done) {
+      if (buffer) {
+        // Parse the last line if it exists
+        yield JSON.parse(buffer)
+      }
+      return
     }
-    readResult = await reader.read()
-  }
-  if (pending.trim() !== '') {
-    yield JSON.parse(pending)
+
+    // Decode the chunk to text
+    const chunk = decoder.decode(value)
+
+    // Split the chunk by newline and handle each line
+    const lines = (buffer + chunk).split('\n')
+
+    // Keep the last line in the buffer if it's not complete
+    buffer = lines.pop() || ''
+
+    for (const line of lines) {
+      if (line) {
+        yield JSON.parse(line)
+      }
+    }
   }
 }
