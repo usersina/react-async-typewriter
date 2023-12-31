@@ -1,5 +1,11 @@
 # @usersina/react-async-typewriter
 
+## 3.0.0
+
+### Major Changes
+
+- add first chunk check and early stop logic
+
 ## 2.0.0
 
 ### Major Changes
