@@ -4,7 +4,7 @@ import { TextExample } from './components/TextExample'
 
 function App() {
   const [selectedExample, setSelectedExample] = useState<'text' | 'json'>(
-    'text'
+    'json'
   )
 
   return (
@@ -30,7 +30,7 @@ function App() {
         </label>
       </div>
       {selectedExample === 'text' && <TextExample chunksAmount={50} />}
-      {selectedExample === 'json' && <JsonExample chunksAmount={50} />}
+      {selectedExample === 'json' && <JsonExample chunksAmount={100} />}
     </main>
   )
 }

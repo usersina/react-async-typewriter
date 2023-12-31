@@ -14,6 +14,7 @@ interface JsonExampleProps {
 }
 
 export const JsonExample = ({ chunksAmount }: JsonExampleProps) => {
+  const [text, setText] = React.useState<string | null>(null)
   const [stream, setStream] = React.useState<AsyncIterable<ChunkType> | null>(
     null
   )
@@ -41,9 +42,10 @@ export const JsonExample = ({ chunksAmount }: JsonExampleProps) => {
     fetchStream()
   }, [chunksAmount])
 
-  const handleTypingEnd = () => {
+  const handleTypingEnd = (message: string) => {
     console.log('Finished typing, setting stream to null')
     setStream(null)
+    setText(message)
   }
 
   return (
@@ -53,11 +55,24 @@ export const JsonExample = ({ chunksAmount }: JsonExampleProps) => {
         <AsyncTypewriter
           stream={stream}
           chunkAccessor="content"
+          onStreamEnd={() => console.log('JsonExample: Stream ended')}
           onTypingEnd={handleTypingEnd}
-          onStreamEnd={(msg) => console.log(msg)}
+          earlyStop
           delay={10}
-          Wrapper={({ text }) => <p style={{ margin: '5px 0' }}>{text}</p>}
+          Wrapper={({ text }) => (
+            <div className="m-1 max-h-28 overflow-auto">
+              <p>{text}</p>
+            </div>
+          )}
         />
+      )}
+      {text && (
+        <div className="m-1">
+          <p className="text-gray-500">
+            Stream is null, full text is displayed below
+          </p>
+          <p>{text}</p>
+        </div>
       )}
     </article>
   )
