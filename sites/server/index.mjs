@@ -6,6 +6,14 @@ import { generate } from 'random-words'
 const app = express()
 const PORT = 5000
 
+/**
+ * Wait for ms milliseconds
+ * @param {number} ms
+ */
+async function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 app.use(cors())
 
 app.get('/', (_req, res) => {
@@ -53,7 +61,7 @@ app.get('/stream/json', (req, res) => {
   })
 
   let counter = 0
-  let interValID = setInterval(() => {
+  let interValID = setInterval(async () => {
     counter++
     if (counter >= chunks_amount) {
       clearInterval(interValID)
@@ -61,6 +69,7 @@ app.get('/stream/json', (req, res) => {
       return
     }
     console.log('Iteration', counter)
+    await wait(100)
     res.write(
       JSON.stringify({ content: generate() + ' ', num: counter }) + '\n'
     ) // res.write() instead of res.send()
