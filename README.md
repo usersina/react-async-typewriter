@@ -188,4 +188,5 @@ You can then submit a pull request that contains all of your changes alongside a
 
 ## V. Roadmap
 
-- [ ] Create a better `getIterableJsonStream` schema that can consider nested objects and the presence of any symbol.
+- [x] Create a better `getIterableJsonStream` schema that can consider nested objects and the presence of any symbol.
+- [ ] Properly implement the auto-scroll functionality.

@@ -5,6 +5,10 @@ interface WrapperProps {
    * The text that's being typed.
    */
   text: string
+  // /**
+  //  * The ref to the element that's used to scroll to the bottom of the container.
+  //  */
+  // scrollTargetRef?: React.RefObject<HTMLDivElement>
 }
 
 interface AsyncTypewriterProps<T = string> {
@@ -25,6 +29,13 @@ interface AsyncTypewriterProps<T = string> {
    * Increasing this value guarantees that slow streams will have enough time to finish typing.
    */
   abortDelay?: number
+  // /**
+  //  * Whether or not to continuously scroll to the bottom of the container as soon as text is typed.
+  //  * Note that scrolling does not happen if the user is not at the bottom of the container.
+  //  *
+  //  * Default is `true`.
+  //  */
+  // autoScroll?: boolean
   /**
    * Whether or not to stop typing as soon as the stream is finished. This also calls the `onTypingEnd` callback.
    *
@@ -39,10 +50,6 @@ interface AsyncTypewriterProps<T = string> {
    * Callback for when the stream ends. This does not return the message intentionally. Instead, enable `earlyStop` and use `onTypingEnd`.
    */
   onStreamEnd?: () => void
-  // /**
-  //  * Whether or not to continuously scroll to the bottom of the container as soon as text is typed. Default is `true`.
-  //  */
-  // continuousScroll?: boolean;
   /**
    * The wrapper element to wrap the typed text in. Default is `span`.
    */
@@ -67,10 +74,10 @@ export function AsyncTypewriter<T = string>({
   chunkAccessor,
   delay = 20,
   abortDelay = 1000,
+  // autoScroll = true,
   earlyStop,
   onTypingEnd,
   onStreamEnd,
-  // continuousScroll = true,
   Wrapper,
 }: AsyncTypewriterProps<T>) {
   if (earlyStop && !onTypingEnd) {
@@ -78,8 +85,10 @@ export function AsyncTypewriter<T = string>({
       'The `earlyStop` prop is set to true but the `onTypingEnd` prop is not provided.'
     )
   }
-
-  // const scrollTargetRef = useRef<HTMLDivElement>(null);
+  // /**
+  //  * Ref to the element that's used to scroll to the bottom of the container.
+  //  */
+  // const scrollTargetRef = useRef<HTMLDivElement>(null)
 
   /**
    * This ensures that `onTypingEnd` is not called before the first chunk is received.
@@ -235,10 +244,44 @@ export function AsyncTypewriter<T = string>({
     // relevant dependencies are the text and the index
   }, [text, currentIndex, earlyStop, delay, abortDelay])
 
+  // TODO: If a ref provided by the user is visible, then scroll to the bottom and NOT the provided ref
+  // useEffect(() => {
+  //   const currentScrollTarget = scrollTargetRef.current
+
+  //   if (!autoScroll || !currentScrollTarget) {
+  //     return
+  //   }
+
+  //   const observer = new IntersectionObserver(
+  //     (entries) => {
+  //       // If the target is visible, scroll into view
+  //       console.log('Checking if the target is visible...')
+  //       if (entries[0].isIntersecting) {
+  //         console.log('Target is visible, scrolling into view...')
+  //         currentScrollTarget.scrollIntoView({ behavior: 'auto' })
+  //       }
+  //     },
+  //     { threshold: 1.0 } // 100% of the target is visible
+  //   )
+
+  //   observer.observe(currentScrollTarget)
+
+  //   // Clean up
+  //   return () => {
+  //     if (currentScrollTarget) observer.unobserve(currentScrollTarget)
+  //   }
+  // }, [autoScroll, currentText])
+
   return (
     <>
-      {Wrapper ? <Wrapper text={currentText} /> : <span>{currentText}</span>}
-      {/* <div ref={scrollTargetRef} /> */}
+      {Wrapper ? (
+        <Wrapper
+          text={currentText}
+          // scrollTargetRef={scrollTargetRef}
+        />
+      ) : (
+        <span>{currentText}</span>
+      )}
     </>
   )
 }
