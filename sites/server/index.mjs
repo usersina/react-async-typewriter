@@ -49,7 +49,7 @@ app.get('/stream/json', (req, res) => {
   res.writeHead(200, {
     Connection: 'keep-alive',
     'Cache-Control': 'no-cache',
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/x-ndjson',
   })
 
   let counter = 0
@@ -61,7 +61,9 @@ app.get('/stream/json', (req, res) => {
       return
     }
     console.log('Iteration', counter)
-    res.write(JSON.stringify({ content: generate() + ' ', num: counter })) // res.write() instead of res.send()
+    res.write(
+      JSON.stringify({ content: generate() + ' ', num: counter }) + '\n'
+    ) // res.write() instead of res.send()
   }, 100)
 
   // If client closes connection, stop sending events
