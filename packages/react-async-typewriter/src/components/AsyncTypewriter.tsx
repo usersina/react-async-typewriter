@@ -69,6 +69,11 @@ export function AsyncTypewriter<T = string>({
   // const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   /**
+   * This ensures that `onTypingEnd` is not called before the first chunk is received.
+   */
+  const firstChunkReceivedRef = useRef(false)
+
+  /**
    * This is a ref to ensure no endless loop is caused by the `useCallback` hook.
    */
   const onTypingEndRef = useRef(onTypingEnd)
@@ -108,6 +113,12 @@ export function AsyncTypewriter<T = string>({
       const delta = chunkAccessor ? chunk[chunkAccessor] : chunk
       total += delta
       setText((prev) => prev + delta)
+      if (!firstChunkReceivedRef.current) {
+        console.debug(
+          'First chunk received. Setting firstChunkReceivedRef to true.'
+        )
+        firstChunkReceivedRef.current = true
+      }
     }
     console.debug('Finished reading the stream. Calling onStreamEnd if any.')
     onStreamEndRef.current && onStreamEndRef.current(total)
@@ -163,8 +174,19 @@ export function AsyncTypewriter<T = string>({
       `Cursor reached the text length. If no additional text is received within ${abortDelay} ms, we are done typing.`
     )
     abort = setTimeout(() => {
-      console.debug('Finished typing. Calling onTypingEndRef if any.')
-      onTypingEndRef.current && onTypingEndRef.current(text)
+      console.debug('Finished typing.')
+      if (!firstChunkReceivedRef.current) {
+        console.debug(
+          'No chunk was received yet, this means that the stream is most likely still loading. Skipping onTypingEndRef for now.'
+        )
+        return
+      }
+
+      // Call the onTypingEnd callback if any
+      if (onTypingEndRef.current) {
+        console.debug('Calling onTypingEndRef...')
+        onTypingEndRef.current(text)
+      }
     }, abortDelay)
 
     return () => {
