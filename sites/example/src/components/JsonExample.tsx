@@ -41,13 +41,20 @@ export const JsonExample = ({ chunksAmount }: JsonExampleProps) => {
     fetchStream()
   }, [chunksAmount])
 
+  const handleTypingEnd = () => {
+    console.log('Finished typing, setting stream to null')
+    setStream(null)
+  }
+
   return (
-    <article>
-      <h1>AsyncTypewriter - Json Example</h1>
+    <article className="text-black">
+      <h1 className="font-semibold">AsyncTypewriter - Json Example</h1>
       {stream && (
         <AsyncTypewriter
           stream={stream}
           chunkAccessor="content"
+          onTypingEnd={handleTypingEnd}
+          onStreamEnd={(msg) => console.log(msg)}
           delay={10}
           Wrapper={({ text }) => <p style={{ margin: '5px 0' }}>{text}</p>}
         />
